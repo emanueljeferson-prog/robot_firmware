@@ -1,4 +1,19 @@
-pub type Callback = Box<dyn Fn(&Message)>;
+use std::sync::Arc;
+use core::ptr::NonNull;
+use core::ffi::c_void;
+
+pub type Callback = Arc<dyn Fn(&Message)+ Send + Sync>;
+pub type TaskEntry = fn(*mut core::ffi::c_void);
+
+#[derive(Debug)]
+pub struct TaskDescriptor {
+    pub name: &'static str,
+    pub stack_size: usize,
+    pub priority: u8,
+    pub delay_ms: u16,
+    pub task: TaskEntry,
+    pub context: Option<NonNull<c_void>>,
+}
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Topics {
@@ -14,7 +29,7 @@ pub enum Message {
     ReadSpeed(f64),
     ReadImuData,
     ReadGpsData,
-    RegisterTask
+    RegisterTask(TaskDescriptor)
 }
 
 impl Message {
@@ -36,7 +51,7 @@ impl Message {
                 Topics::ReadGpsData
             }
 
-            Message::RegisterTask => {
+            Message::RegisterTask(_) => {
                 Topics::RegisterTask
             }
         }
