@@ -13,17 +13,18 @@ impl Broker {
         Self { subscribers: Mutex::new(Vec::new()) }
     }
 
-    pub fn subscribe(&self, callback: Callback, topic: Topics) {
+    pub fn run(&self) {
+        self.delete_sub();
+    }
+
+    pub fn subscribe(&self, callback: Callback, topic: Topics, delete: bool) {
         self.subscribers
             .lock()
             .unwrap()
-            .push( Subscriber::new(callback, topic) );
+            .push( Subscriber::new(callback, topic, delete) );
     }
 
-    pub fn publish(
-        &self,
-        message: &Message
-    ) {
+    pub fn publish(&self, message: &Message) {
 
         let subscribers =
             self.subscribers
@@ -46,5 +47,9 @@ impl Broker {
         for callback in callbacks {
             callback(message);
         }
+    }
+
+    pub fn delete_sub(&self) {
+        self.subscribers.lock().unwrap().retain(|sub| { !sub.delete_after });
     }
 }

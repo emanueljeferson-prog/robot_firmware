@@ -3,14 +3,13 @@ use core::ptr::NonNull;
 use core::ffi::c_void;
 
 pub type Callback = Arc<dyn Fn(&Message)+ Send + Sync>;
-pub type TaskEntry = fn(*mut core::ffi::c_void);
+pub type TaskEntry = extern "C" fn(*mut core::ffi::c_void);
 
 #[derive(Debug)]
 pub struct TaskDescriptor {
     pub name: &'static str,
     pub stack_size: usize,
     pub priority: u8,
-    pub delay_ms: u16,
     pub task: TaskEntry,
     pub context: Option<NonNull<c_void>>,
 }
@@ -60,11 +59,12 @@ impl Message {
 
 pub struct Subscriber {
     pub callback: Callback,
-    pub topic: Topics
+    pub topic: Topics,
+    pub delete_after: bool
 }
 
 impl Subscriber {
-    pub fn new(cb: Callback, tp: Topics) -> Self {
-        Self { callback: cb, topic: tp }
+    pub fn new(cb: Callback, tp: Topics, delete: bool) -> Self {
+        Self { callback: cb, topic: tp, delete_after: delete }
     }
 }

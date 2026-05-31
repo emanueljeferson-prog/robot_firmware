@@ -23,13 +23,23 @@ impl MotorControl {
                     name: "motor_control_task",
                     stack_size: 1024,
                     priority: 1,
-                    delay_ms: 1000,
                     task: motor_control_task,
-                    context: Some(NonNull::from(self)
-                        .cast::<c_void>())
+                    context: Some(NonNull::from(self).cast::<c_void>())
                 }
             )
-        )
+        );
+
+        middleware.publish(
+            &Message::RegisterTask(
+                TaskDescriptor {
+                    name: "read_speed_task",
+                    stack_size: 1024,
+                    priority: 1,
+                    task: read_speed_task,
+                    context: Some(NonNull::from(self).cast::<c_void>())
+                }
+            )
+        );
     }
 
     pub fn control(&self) {
@@ -41,9 +51,7 @@ impl MotorControl {
     }
 }
 
-fn motor_control_task(
-    ctx: *mut c_void
-)
+extern "C" fn motor_control_task(ctx: *mut c_void)
 {
     let motor =
         unsafe {
@@ -52,6 +60,19 @@ fn motor_control_task(
 
     loop {
         motor.control();
+        std::thread::sleep(std::time::Duration::from_millis(1000));
+    }
+}
+
+extern "C" fn read_speed_task(ctx: *mut c_void)
+{
+    let motor =
+        unsafe {
+            &*(ctx as *const MotorControl)
+        };
+
+    loop {
+        motor.read_speed();
         std::thread::sleep(std::time::Duration::from_millis(1000));
     }
 }

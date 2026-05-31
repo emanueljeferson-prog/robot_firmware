@@ -11,9 +11,9 @@ use services::rtos::RtosService;
 
 fn main() {
     let mut broker = Broker::new();
-
     RtosService::init(&broker);
-    
     let app_motor = MotorControl::new("motor_left".to_string());
     app_motor.init(&broker);
+    broker.run();
+    RtosService::scheduler_start();
 }
