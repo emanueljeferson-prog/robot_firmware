@@ -1,24 +1,25 @@
-use crate::middleware::broker::Broker;
 use crate::middleware::message::Message;
 use crate::middleware::message::TaskDescriptor;
+use crate::middleware::publisher::PublisherManager;
 
 use core::ffi::c_void;
 use core::ptr::NonNull;
 
-pub struct MotorControl {
+pub struct MotorControl<'a> {
     signal: f32,
     speed: f32,
-    motor: String
+    motor: String,
+    publisher: &'a dyn PublisherManager
 }
 
-impl MotorControl {
-    pub fn new(name: String) -> Self {
-        Self { signal: 0.0, speed: 0.0, motor: name }
+impl<'a> MotorControl<'a> {
+    pub fn new(name: String, publisher: &'a dyn PublisherManager) -> Self {
+        Self { signal: 0.0, speed: 0.0, motor: name, publisher }
     }
 
-    pub fn init(&self, middleware: &Broker) {
-        middleware.publish(
-            &Message::RegisterTask(
+    pub fn init(&self) {
+        self.publisher.publish(
+            &mut Message::RegisterTask(
                 TaskDescriptor {
                     name: "motor_control_task",
                     stack_size: 1024,
@@ -29,8 +30,8 @@ impl MotorControl {
             )
         );
 
-        middleware.publish(
-            &Message::RegisterTask(
+        self.publisher.publish(
+            &mut Message::RegisterTask(
                 TaskDescriptor {
                     name: "read_speed_task",
                     stack_size: 1024,
@@ -46,8 +47,11 @@ impl MotorControl {
         println!("Motor control '{}'...", self.motor);
     }
 
-    pub fn read_speed(&self) {
-        println!("Read speed '{}'...", self.motor);
+    pub fn read_speed(&mut self) {
+        self.publisher.publish(
+            &mut Message::ReadSpeed(&mut self.speed)
+        );
+        println!("Read speed: {}", self.speed);
     }
 }
 
@@ -68,7 +72,7 @@ extern "C" fn read_speed_task(ctx: *mut c_void)
 {
     let motor =
         unsafe {
-            &*(ctx as *const MotorControl)
+            &mut *(ctx as *mut MotorControl)
         };
 
     loop {

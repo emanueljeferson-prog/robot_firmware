@@ -1,1 +1,1 @@
-pub mod app_motor_control;
+pub mod motor;

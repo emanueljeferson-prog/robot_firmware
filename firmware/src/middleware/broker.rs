@@ -2,10 +2,25 @@ use super::message::Subscriber;
 use super::message::Callback;
 use super::message::Topics;
 use super::message::Message;
+use super::publisher::PublisherManager;
+use super::subscriber::SubscriberManager;
+
 use std::sync::Mutex;
 
 pub struct Broker {
     subscribers: Mutex<Vec<Subscriber>>
+}
+
+impl PublisherManager for Broker {
+    fn publish(&self, message: &mut Message<'_>) {
+        Broker::publish(self, message);
+    }
+}
+
+impl SubscriberManager for Broker {
+    fn subscribe(&self, callback: Callback, topic: Topics, delete: bool) {
+        Broker::subscribe(self, callback, topic, delete);
+    }
 }
 
 impl Broker {
@@ -24,7 +39,7 @@ impl Broker {
             .push( Subscriber::new(callback, topic, delete) );
     }
 
-    pub fn publish(&self, message: &Message) {
+    pub fn publish(&self, message: &mut Message) {
 
         let subscribers =
             self.subscribers

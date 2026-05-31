@@ -2,7 +2,7 @@ use std::sync::Arc;
 use core::ptr::NonNull;
 use core::ffi::c_void;
 
-pub type Callback = Arc<dyn Fn(&Message)+ Send + Sync>;
+pub type Callback = Arc<dyn Fn(&mut Message)+ Send + Sync>;
 pub type TaskEntry = extern "C" fn(*mut core::ffi::c_void);
 
 #[derive(Debug)]
@@ -23,15 +23,15 @@ pub enum Topics {
     RegisterTask
 }
 
-pub enum Message {
+pub enum Message<'a> {
     MotorControl,
-    ReadSpeed(f64),
+    ReadSpeed(&'a mut f32),
     ReadImuData,
     ReadGpsData,
     RegisterTask(TaskDescriptor)
 }
 
-impl Message {
+impl Message<'_> {
     pub fn topic(&self) -> Topics {
         match self {
             Message::MotorControl => {

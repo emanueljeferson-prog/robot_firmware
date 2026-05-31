@@ -1,7 +1,8 @@
-use crate::middleware::broker::Broker;
 use crate::middleware::message::Message;
 use crate::middleware::message::Topics;
 use crate::middleware::message::TaskDescriptor;
+use crate::middleware::subscriber::SubscriberManager;
+
 use std::sync::Arc;
 use core::ffi::c_void;
 use std::ffi::CString;
@@ -20,9 +21,9 @@ unsafe extern "C" {
 pub struct RtosService;
 
 impl RtosService {
-    pub fn init(middleware: &Broker) {
+    pub fn init(middleware: &dyn SubscriberManager) {
         middleware.subscribe(
-            Arc::new(|msg: &Message| {
+            Arc::new(|msg: &mut Message| {
                 if let Message::RegisterTask(desc) = msg {
                     RtosService::crete_task(desc);
                 }
