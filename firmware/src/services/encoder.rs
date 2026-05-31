@@ -25,7 +25,7 @@ impl EncoderService {
         )
     }
 
-    pub fn read_speed(id: u8) -> f32 {
+    pub fn read_speed(_id: u8) -> f32 {
         let speed_read: f32 = 55.11; 
         speed_read
     }
