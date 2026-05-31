@@ -2,7 +2,7 @@ use crate::middleware::message::Message;
 use crate::middleware::message::Topics;
 use crate::middleware::subscriber::SubscriberManager;
 
-use std::sync::Arc;
+use alloc::sync::Arc;
 
 pub struct EncoderService {
 

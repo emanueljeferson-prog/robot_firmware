@@ -19,3 +19,8 @@ void createTask(void* task_ptr, const char* const task_name, const uint16_t stac
 void schedulerStart() {
     vTaskStartScheduler();
 }
+
+void delayTask(const uint32_t delay)
+{
+    vTaskDelay(pdMS_TO_TICKS(delay));
+}

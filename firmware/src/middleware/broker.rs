@@ -5,7 +5,8 @@ use super::message::Message;
 use super::publisher::PublisherManager;
 use super::subscriber::SubscriberManager;
 
-use std::sync::Mutex;
+use spin::Mutex;
+use alloc::vec::Vec;
 
 pub struct Broker {
     subscribers: Mutex<Vec<Subscriber>>
@@ -35,7 +36,6 @@ impl Broker {
     pub fn subscribe(&self, callback: Callback, topic: Topics, delete: bool) {
         self.subscribers
             .lock()
-            .unwrap()
             .push( Subscriber::new(callback, topic, delete) );
     }
 
@@ -43,8 +43,7 @@ impl Broker {
 
         let subscribers =
             self.subscribers
-                .lock()
-                .unwrap();
+                .lock();
 
         let callbacks = subscribers
             .iter()
@@ -57,7 +56,7 @@ impl Broker {
             })
             .collect::<Vec<_>>();
 
-        drop(subscribers); // unlock explícito
+        drop(subscribers);
 
         for callback in callbacks {
             callback(message);
@@ -65,6 +64,6 @@ impl Broker {
     }
 
     pub fn delete_sub(&self) {
-        self.subscribers.lock().unwrap().retain(|sub| { !sub.delete_after });
+        self.subscribers.lock().retain(|sub| { !sub.delete_after });
     }
 }

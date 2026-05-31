@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use alloc::sync::Arc;
 use core::ptr::NonNull;
 use core::ffi::c_void;
 
@@ -20,7 +20,8 @@ pub enum Topics {
     ReadSpeed,
     ReadImuData,
     ReadGpsData,
-    RegisterTask
+    RegisterTask,
+    DelayTask
 }
 
 pub enum Message<'a> {
@@ -28,7 +29,8 @@ pub enum Message<'a> {
     ReadSpeed(&'a mut f32),
     ReadImuData,
     ReadGpsData,
-    RegisterTask(TaskDescriptor)
+    RegisterTask(TaskDescriptor),
+    DelayTask(u32)
 }
 
 impl Message<'_> {
@@ -52,6 +54,10 @@ impl Message<'_> {
 
             Message::RegisterTask(_) => {
                 Topics::RegisterTask
+            }
+
+            Message::DelayTask(_) => {
+                Topics::DelayTask
             }
         }
     }

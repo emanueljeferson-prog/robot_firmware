@@ -3,9 +3,9 @@ use crate::middleware::message::Topics;
 use crate::middleware::message::TaskDescriptor;
 use crate::middleware::subscriber::SubscriberManager;
 
-use std::sync::Arc;
+use alloc::sync::Arc;
 use core::ffi::c_void;
-use std::ffi::CString;
+use alloc::ffi::CString;
 
 unsafe extern "C" {
     fn createTask(
@@ -16,6 +16,7 @@ unsafe extern "C" {
         parameters: *mut c_void
     );
     fn schedulerStart();
+    fn delayTask(delay: u32);
 }
 
 pub struct RtosService;
@@ -31,6 +32,16 @@ impl RtosService {
             Topics::RegisterTask,
             true
         );
+
+        middleware.subscribe(
+            Arc::new(|msg: &mut Message| {
+                if let Message::DelayTask(delay) = msg {
+                    RtosService::delay_task(*delay);
+                }
+            }),
+            Topics::DelayTask,
+            false
+        )
     }
     
     pub fn crete_task(desc: &TaskDescriptor) {
@@ -57,6 +68,12 @@ impl RtosService {
     pub fn scheduler_start() {
         unsafe {
             schedulerStart();
+        }
+    }
+
+    pub fn delay_task(delay: u32) {
+        unsafe {
+            delayTask(delay);
         }
     }
 }

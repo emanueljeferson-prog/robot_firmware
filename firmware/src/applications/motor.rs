@@ -4,6 +4,7 @@ use crate::middleware::publisher::PublisherManager;
 
 use core::ffi::c_void;
 use core::ptr::NonNull;
+use alloc::string::String;
 
 pub struct MotorControl<'a> {
     signal: f32,
@@ -48,9 +49,7 @@ impl<'a> MotorControl<'a> {
     }
 
     pub fn read_speed(&mut self) {
-        self.publisher.publish(
-            &mut Message::ReadSpeed(&mut self.speed)
-        );
+        self.publisher.publish(&mut Message::ReadSpeed(&mut self.speed));
         println!("Read speed: {}", self.speed);
     }
 }
@@ -64,7 +63,7 @@ extern "C" fn motor_control_task(ctx: *mut c_void)
 
     loop {
         motor.control();
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        motor.publisher.publish(&mut Message::DelayTask(1000));
     }
 }
 
@@ -77,6 +76,6 @@ extern "C" fn read_speed_task(ctx: *mut c_void)
 
     loop {
         motor.read_speed();
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        motor.publisher.publish(&mut Message::DelayTask(1000));
     }
 }

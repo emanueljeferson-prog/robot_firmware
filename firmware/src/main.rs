@@ -3,11 +3,12 @@ mod applications;
 mod services;
 mod hal;
 
+extern crate alloc;
+
 use applications::motor::MotorControl;
 use services::rtos::RtosService;
 use services::encoder::EncoderService; 
 use crate::middleware::broker::Broker;
-
 
 fn main() {
     let broker = Broker::new();
