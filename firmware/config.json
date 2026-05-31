@@ -1,0 +1,57 @@
+{
+    "motors": {
+        "1": {
+            "encoder": {
+                "pin_a": 18,
+                "pin_b": 19,
+                "reduction_factor": 496,
+                "pulses_per_rev": 11
+            },
+            "driver": {
+                "pin_a": 20,
+                "pin_b": 21,
+                "pwm_wrap": 1000
+            },
+            "pid": {
+                "gains": [
+                    [131.6, 10.01, 0.01, 50]
+                ],
+                "period_ms": 10,
+                "out_min": -100,
+                "out_max": 100
+            }
+        },
+        "2": {
+            "encoder": {
+                "pin_a": 16,
+                "pin_b": 17,
+                "reduction_factor": 496,
+                "pulses_per_rev": 11
+            },
+            "driver": {
+                "pin_a": 22,
+                "pin_b": 23,
+                "pwm_wrap": 1000
+            },
+            "pid": {
+                "gains": [
+                    [131.6, 10.01, 0.01, 50]
+                ],
+                "period_ms": 10,
+                "out_min": -100,
+                "out_max": 100
+            }
+        }
+    },
+    "imu": {
+        "miso": 4,
+        "mosi": 7,
+        "cs": 5,
+        "sck": 6
+    },
+    "gps": {
+        "tx": 11,
+        "rx": 12,
+        "baud_rate": 115200
+    }
+}
