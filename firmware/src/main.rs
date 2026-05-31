@@ -17,7 +17,7 @@ fn main() {
     let encoder = EncoderService::new();
     encoder.init(&broker);
 
-    let app_motor = MotorControl::new("motor_left".to_string(), &broker);
+    let app_motor = MotorControl::new(1, &broker);
     app_motor.init();
     broker.run();
     RtosService::scheduler_start();

@@ -26,7 +26,7 @@ pub enum Topics {
 
 pub enum Message<'a> {
     MotorControl,
-    ReadSpeed(&'a mut f32),
+    ReadSpeed(u8, &'a mut f32),
     ReadImuData,
     ReadGpsData,
     RegisterTask(TaskDescriptor),
@@ -40,7 +40,7 @@ impl Message<'_> {
                 Topics::MotorControl
             }
 
-            Message::ReadSpeed(_) => {
+            Message::ReadSpeed(_,_) => {
                 Topics::ReadSpeed
             }
 

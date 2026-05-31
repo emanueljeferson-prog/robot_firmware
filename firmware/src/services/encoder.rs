@@ -16,8 +16,8 @@ impl EncoderService {
     pub fn init(&self, middleware: &dyn SubscriberManager) {
         middleware.subscribe(
             Arc::new(|msg: &mut Message| {
-                if let Message::ReadSpeed(speed) = msg {
-                    **speed = EncoderService::read_speed();
+                if let Message::ReadSpeed(id, speed) = msg {
+                    **speed = EncoderService::read_speed(*id);
                 }
             }),
             Topics::ReadSpeed,
@@ -25,7 +25,7 @@ impl EncoderService {
         )
     }
 
-    pub fn read_speed() -> f32 {
+    pub fn read_speed(id: u8) -> f32 {
         let speed_read: f32 = 55.11; 
         speed_read
     }

@@ -4,18 +4,17 @@ use crate::middleware::publisher::PublisherManager;
 
 use core::ffi::c_void;
 use core::ptr::NonNull;
-use alloc::string::String;
 
 pub struct MotorControl<'a> {
+    id: u8,
     signal: f32,
     speed: f32,
-    motor: String,
     publisher: &'a dyn PublisherManager
 }
 
 impl<'a> MotorControl<'a> {
-    pub fn new(name: String, publisher: &'a dyn PublisherManager) -> Self {
-        Self { signal: 0.0, speed: 0.0, motor: name, publisher }
+    pub fn new(id: u8, publisher: &'a dyn PublisherManager) -> Self {
+        Self { id, signal: 0.0, speed: 0.0, publisher }
     }
 
     pub fn init(&self) {
@@ -45,11 +44,11 @@ impl<'a> MotorControl<'a> {
     }
 
     pub fn control(&self) {
-        println!("Motor control '{}'...", self.motor);
+        println!("Motor control '{}'...", self.id);
     }
 
     pub fn read_speed(&mut self) {
-        self.publisher.publish(&mut Message::ReadSpeed(&mut self.speed));
+        self.publisher.publish(&mut Message::ReadSpeed(self.id ,&mut self.speed));
         println!("Read speed: {}", self.speed);
     }
 }
